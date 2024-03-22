@@ -2,7 +2,7 @@ module.exports = function (sequelize, DataTypes) {
     const User = sequelize.define(
       'User',
       {
-       // user_id:DataTypes.STRING,
+    
         
          firstName:DataTypes.STRING,
         lastName: DataTypes.STRING,
@@ -10,7 +10,7 @@ module.exports = function (sequelize, DataTypes) {
         password: DataTypes.STRING,
         phoneNumber:DataTypes.STRING,
         accessToken: DataTypes.STRING,
-       // refreshToken: DataTypes.STRING,
+   
         dob: DataTypes.DATE,
         isActive: {
           type: DataTypes.BOOLEAN,

@@ -11,7 +11,7 @@ router.get('/:id', validate(menuValidation.getMenuById), getMenuById);
 router.put('/:id', validate(menuValidation.updateMenu), updateMenu);
 router.delete('/:id', validate(menuValidation.deleteMenu),deleteMenu);
 router.get('/',listMenus);
-//router.post('/refreshtoken', auth, validate(menuValidation.refreshtoken), refreshtoken);
+
 
 module.exports= router;
 

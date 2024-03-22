@@ -5,6 +5,7 @@ const menus={}
 
 menus.createMenu = async (req, res,next) => {
     const  { menu_Name,status,link,type,target,order_no } = req.body; 
+    console.log("req.body",req.body);
     try {
         const newMenu = await menuService.createMenu({
             menu_Name:menu_Name,
@@ -14,6 +15,7 @@ menus.createMenu = async (req, res,next) => {
             target:target,
             order_no:order_no
         });
+        console.log("newMenu",newMenu);
         res.response = { code: 201,data: { status: 'success',message: rescodes?.success } } 
      return next();                   
                  

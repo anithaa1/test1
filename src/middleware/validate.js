@@ -4,7 +4,7 @@ const Joi = require('joi');
 const httpStatus = require('http-status');
 
 const pick = require('../utils/pick');
-//all check common
+
 const validate = (schema) =>
   function (req, res, next) {
     const validSchema = pick(schema, ['params', 'query', 'body']);

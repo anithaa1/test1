@@ -6,6 +6,7 @@ menuService.createMenu = async (menuData) => {
     try {
         const newMenu = await db.menus.create(menuData);
         console.log("newmenu",newMenu);
+        await newMenu.save()
         return newMenu;
     } catch (error) {
         throw error;
@@ -68,38 +69,3 @@ module.exports = menuService
 
 
 
-// const db = require('../../model/index');
-
-// const createMenu = async (updatebody) => {
-//   return db.menus.bulkCreate(updatebody);
-// };
-
-// const getById = async (id) => {
-//   return db.menus.findOne({
-//     attributes: ['id', 'name', 'type', 'status', 'mainmenuid'],
-//     where: {
-//       id,
-//     },
-//     group: ['menus.id'],
-//   });
-// };
-
-// const getAll = async () => {
-//   return db.menus.findAll({});
-// };
-
-// const updateById = async (id, updateBody) => {
-//   await db.menus.update(updateBody, { where: { id } });
-// };
-
-// const dropId = async (id) => {
-//   return db.menus.destroy({ where: { id } });
-// };
-
-// module.exports = {
-//   createMenu,
-//   getById,
-//   getAll,
-//   dropId,
-//   updateById,
-// };
