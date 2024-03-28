@@ -47,31 +47,6 @@ const checkRole = (role) => {
       next();
   };
 };
-const verifyuser=(req,res,next)=>{
-  const authHeader=req.authHeader['authorized']
-  const token= authHeader && authHeader.split(' ')[1];
-  if(!token)
-  {
-    return{isSuccess:false,data:'invalid token format'};
-  }
-  try{
-    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN,(err,user));
-  //  return { isSuccess: true, data: decoded };
-  if(err){
-    console.log("err",err);
-    return res.status(500).json({ error: 'invalid token' });
-  
-  }else{
-   if(decoded.role==="admin"){
-   return next();
-   }else{
-    return res.status(403).json({ error: 'You are not authorized to access this route' });
-   }
-  }
-  } catch (err) {
-    return { isSuccess: false, data: err.message };
-    next();
-  }
-} 
 
-module.exports ={authenticateToken,checkRole ,verifyuser}
+
+module.exports ={authenticateToken,checkRole }

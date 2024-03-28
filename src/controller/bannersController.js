@@ -54,12 +54,7 @@ banner.updatebanner = async (req, res) => {
         res.status(404).send({ status: false, message: 'Banner Data not found' });
         return;
       }
-      // if (dataget.group === req.body.group) {
-      //   await bannerService.updateById(req.params.id, req.body);
-      //   res.status(200).send({ message: 'Banner updated succesfully' });
-      // } else {
-      //   res.status(500).send({ message: 'Something went wrong' });
-      // }
+      
       await bannerService.updateById(req.params.id, req.body);
       res.status(200).send({ message: 'Banner updated succesfully' });
     
@@ -99,81 +94,7 @@ banner.deletebanner= async (req, res) => {
       res.status(500).send({ status: false, message: "Failed to fetch banners" });
     }
   };
-//   banner.findAll = async (req, res) => {
-//     try {
-//       console.log("Fetching banners...");
-  
-//       // Fetch banners data
-//       const todayBanners = await bannerService.getAll(req.body);
-//       console.log("Banners fetched successfully:", todayBanners);
-  
-//       // Check if query parameter 'today' is set to 'true'
-//       if (req.query.today === 'true') {
-//         // Filter banners based on banner_type
-//         const result = todayBanners.filter((data) => data.banner_type === 2);
-//         const customResult = todayBanners.filter((data) => data.banner_type === 1);
-  
-//         // Process each banner asynchronously
-//         const processedBanners = await Promise.all(result.map(async (data) => {
-//           // Prepare headers and auth based on banner properties
-//           const headers = {};
-//           const auth = { username: '', password: '' };
-//           if (data.endpoint_tokentype === 1) {
-//             auth.username = data.username;
-//             auth.password = data.password;
-//           } else {
-//             headers.Authorization = data.endpoint_token;
-//           }
-  
-//           try {
-//             // Make HTTP request to endpoint_url
-//             const resp = await axios({
-//               url: data.endpoint_url,
-//               method: data.endpoint_type,
-//               headers,
-//               auth,
-//               timeout: 5000,
-//             });
-  
-//             // Process response data
-//             Object.entries(resp.data).forEach(([key, value]) => {
-//               if (typeof value !== 'object') {
-//                 if (data.content.includes(`{{${key}}}`)) {
-//                   data.content = data.content.replaceAll(`{{${key}}}`, value);
-//                 }
-//               }
-//             });
-  
-//             // Update banner status and emailContent if API call is successful
-//             if (!data.apibannerStatus || data.apibannerStatus === 'rejected' || data.apibannerStatus === '') {
-//               await db.banners.update({ apibannerStatus: 'success', emailContent: '' }, { where: { id: data.id } });
-//             }
-  
-//             return data;
-//           } catch (e) {
-//             // Update banner status and emailContent if API call fails
-//             if (!data.apibannerStatus || data.apibannerStatus === 'success' || data.apibannerStatus === '') {
-//               await db.banners.update({ apibannerStatus: 'rejected', emailContent: e.response.statusText || 'Unknown error' }, { where: { id: data.id } });
-//             }
-  
-//             // Reject promise with error details
-//             throw { status: e.response ? e.response.status : 500, message: e.code, messagedetail: e.response ? e.response.statusText : 'Unknown error', id: data.id };
-//           }
-//         }));
-  
-//         // Combine processed banners with custom banners
-//         const homebanner = processedBanners.concat(customResult);
-  
-//         // Send response with processed banners
-//         res.send({ status: true, homebanner });
-//       } else {
-//         res.status(400).send({ status: false, message: 'Invalid query parameter value for "today"' });
-//       }
-//     } catch (err) {
-//       console.error("Error fetching banners:", err);
-//       res.status(500).send({ status: false, message: err?.message });
-//     }
-//   };
+
   
 banner.findAllSecure = (req, res) => {
   const { page_no = 1, page_size: limit = 10, search, type, status, col, order } = req.query;
@@ -225,15 +146,7 @@ banner.findAllSecure = (req, res) => {
 
       const totalPageCount = Math.ceil(totalbanners / limit);
 
-      // if (banners) {
-      //   banners.forEach(async (items) => {
-      //     if ((items.end_date === null || items.end_date === '') && items.status === 1) {
-      //       await db.banners.update({ status: 1 }, { where: { id: items.id } });
-      //     } else if (!items.end_date || new Date() > new Date(items.end_date)) {
-      //       await db.banners.update({ status: 2 }, { where: { id: items.id } });
-      //     }
-      //   });
-      // }
+      
 
       const pageperdata = banners.length;
       res.send({ totalbanners, totalPageCount, page_no, pageperdata, page_size: limit, banners });
@@ -245,23 +158,9 @@ banner.findAllSecure = (req, res) => {
     });
 };
 
-// banner.testApi = (req, res) => {
-//   res.send({
-//     name: 'js  team',
-//     title: ' Upcoming Events',
-//     event: [
-//       {name: "Node"},
-//       {name: "React"},
-//       {name: "Angular"},
-//     ]
-//   });
-// };
 
-banner.findbyid = (req, res) => {
 
-  name = Angular
 
-};
 
 module.exports = banner
  
