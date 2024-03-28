@@ -7,7 +7,8 @@ const register={
     email: Joi.string().trim().email().required(),
     password: Joi.string().min(8).required(),
     phoneNumber: Joi.string().required().regex(/^\d{10,15}$/).message('Please enter a valid phone number'), // Adjust the regex as per your phone number format requirements
-    dob: Joi.date().required()
+    dob: Joi.date().required(),
+    role:Joi.string()
   }),
 };
 

@@ -10,15 +10,19 @@ async function authenticateToken(req, res, next) {
     console.log("auth",authHeader);
     const token = authHeader && authHeader?.split(' ')[1];
     console.log("token",token);
-    jwt?.verify(token, config?.app?.ACCESS_TOKEN, async (err, user) => {
-      if (err) return res?.sendStatus(401);
+    jwt?.verify(token, config?.app?.REFRESH_TOKEN, async (err, user) => {
+      if (err){
+      console.log(err);
+       return res?.sendStatus(401);
+      
+      }
       // get user details
       const users = await db?.user?.findOne({
         where: {
-          userName: user?.name,
+          email: user?.email,
           id: user?.id,
-          userStatus: {
-            [Op.ne]: 'Inactive',
+          isActive: {
+            [Op.ne]: false,
           },
           isTrash: false,
         },
@@ -32,5 +36,42 @@ async function authenticateToken(req, res, next) {
     return res?.sendStatus(500);
   }
 }
+const checkRole = (role) => {
+  return (req, res, next) => {
+    console.log("h",role);
+    console.log("req",req.user);;
+      // Check if user has the required role
+      if (req.user && req.user.role !== role) {
+          return res.status(403).send({ status: false, message: 'you are not authorized to access this route' });
+      }
+      next();
+  };
+};
+const verifyuser=(req,res,next)=>{
+  const authHeader=req.authHeader['authorized']
+  const token= authHeader && authHeader.split(' ')[1];
+  if(!token)
+  {
+    return{isSuccess:false,data:'invalid token format'};
+  }
+  try{
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN,(err,user));
+  //  return { isSuccess: true, data: decoded };
+  if(err){
+    console.log("err",err);
+    return res.status(500).json({ error: 'invalid token' });
+  
+  }else{
+   if(decoded.role==="admin"){
+   return next();
+   }else{
+    return res.status(403).json({ error: 'You are not authorized to access this route' });
+   }
+  }
+  } catch (err) {
+    return { isSuccess: false, data: err.message };
+    next();
+  }
+} 
 
-module.exports = authenticateToken;
+module.exports ={authenticateToken,checkRole ,verifyuser}

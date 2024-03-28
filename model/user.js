@@ -16,6 +16,11 @@ module.exports = function (sequelize, DataTypes) {
           type: DataTypes.BOOLEAN,
           defaultValue: true
         },
+        role: {
+          type: DataTypes.STRING,
+          enum: ["user", "admin"],
+          default: "user",
+        },
         isTrash: {
             type: DataTypes.BOOLEAN,
             defaultValue: false 

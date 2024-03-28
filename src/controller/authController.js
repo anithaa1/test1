@@ -16,113 +16,173 @@ const filePath = path.join(__dirname, '..', 'views', 'forgot.html');
 const auth = {};
 
 //register
-auth.register = async (req, res, next) => {
+
+
+auth.register = async (req, res, role) => {
+  console.log("Role:", role);
   try {
- 
-    const { firstName,lastName,email, password,phoneNumber,dob } = req.body;
-    console.log("vgy",req.body);
-    const emailExist = await authService.checkUser(email)
-    console.log("exist",emailExist);
- // if no user exist
- if (emailExist) {
-  return res.status(401).json({ status: 'Error', message: rescodes?.emailExist });
+    const { firstName, lastName, email, password, phoneNumber, dob } = req.body;
+    console.log("Request Body:", req.body);
 
-}else{
- // Generate access token for the new user
-        const user = { email: email };
-        const accessToken = Token.generateAccessToken(user);
-//Create a new user record with hashed password
-        const hashedPassword = await hash.encryptPassword(password);
-        
+    // Check if the email already exists
+    const emailExist = await authService.checkUser(email);
+    console.log("Does email exist:", emailExist);
+
+    // If user exists, return error
+    if (emailExist) {
+      return res.status(401).json({ status: 'Error', message: 'Email already exists' });
+    } else {
+      // Generate access token for the new user
+      const user = { email };
+      const accessToken = Token.generateAccessToken(user);
+
+      // Create a new user record with hashed password
+      const hashedPassword = await hash.encryptPassword(password);
+      
       const newUser = await authService.createUser({
-        firstName: firstName,
-        lastName: lastName,
-        email: email,
+        firstName,
+        lastName,
+        email,
         password: hashedPassword,
-        phoneNumber: phoneNumber,
-        dob: dob ,
-        accessToken: accessToken,
-       // refreshToken:refreshToken
-      })
+        phoneNumber,
+        dob,
+        accessToken,
+        role
+      });
 
-     //return res.status(201).json({ status: 'Success', message: 'User registered successfully' });
-     res.response = { code: 201,data: { status: 'success',message: rescodes?.regSuc } } 
-     return next();                   
-                 
-              }} catch (error) {
-           console.error('Error occurred during user registration:', error);
-                 
-    //return res.status(500).json({ status: 'Error', message: 'An error occurred during user registration' });
-    res.response = { code: 500, data: { status: 'Error', message: rescodes?.wentWrong  } };
-    return next();
-             
-               }
-          };    
-          auth.loginUser = async (req, res, next) => {
-            try {
-              const { email, password } = req.body;
-              console.log("req.body", req.body);
-              
-              // Check if the user exists
-              const userExist = await authService.checkUser(email);
-          
-              // If user doesn't exist
-              if (!userExist) {
-                res.response = {
-                  code: 401,
-                  data: { status: 'Error', message: rescodes?.emailNExist },
-                };
-                return next();
-              }
-          
-              // If the user is not active
-              if (!userExist.isActive) {
-              res.response = {
-                  code: 404,
-                  data: { status: 'Error', message: rescodes?.inActiveUsr },
-                };
-                return next();
-              }
-          
-              // Check if the password is valid
-              const isPasswordValid = await hash.decryptPassword(password, userExist.password);
-              console.log("isPasswordValid", isPasswordValid);
-              
-              if (!isPasswordValid) {
-                res.response = {
-                  code: 401,
-                  data: { status: 'Error', message: rescodes?.checkCred },
-                };
-                return next();
-              }
-          
-              // Generate a refresh token
-              const user = { email: userExist.email };
-              const refreshToken = Token.generateRefreshToken(user, config?.app?.REFRESH_TOKEN);
-              console.log("refreshToken", refreshToken);
-          
-              // Save the refresh token
-              const refService = await authService.saveRefreshToken(refreshToken);
-          
-              res.response = {
-                code: 200,
-                data: {
-                  status: 'Ok',
-                  message: rescodes?.loginSuc,
-                  refreshToken: refreshToken, 
-                },
-              };
-              return next();
-            } catch (err) {
-              console.error('Error occurred during user login:', err);
-              res.response = {
-                code: 500,
-                data: { status: 'Error', message: rescodes?.wentWrong },
-              };
-              return next();
-            }
+      // Return success response
+      return res.status(201).json({ status: 'Success', message: 'User registered successfully' });
+    }
+  } catch (error) {
+    console.error('Error occurred during user registration:', error);
+    // Return error response
+    return res.status(500).json({ status: 'Error', message: 'An error occurred during user registration' });
+  }
+};
+
+
+    
+auth.loginUser = async (req, res, role) => {
+  console.log("Role:", role);
+  try {
+      const { email, password } = req.body;
+      console.log("Request Body:", req.body);
+
+      // Check if the user exists
+      const userExist = await authService.checkUser(email);
+      console.log("userExist", userExist);
+
+      // If user doesn't exist
+      if (!userExist) {
+          return res.status(401).json({ status: 'Error', message: 'Email is not registered' });
+      }
+
+      // We will check if the user is logging in via the correct role
+      if (userExist.role !== role) {
+          return res.status(403).json({
+              message: "Please make sure you are logging in from the right portal.",
+              success: false,
+          });
+      }
+
+      // If the user's account is inactive
+      if (!userExist.isActive) {
+          return res.status(500).json({ status: 'Error', message: 'Your account is currently inactive' });
+      }
+
+      // Check if the password is valid
+      const isPasswordValid = await hash.decryptPassword(password, userExist.password);
+      console.log("isPasswordValid", isPasswordValid);
+
+      if (!isPasswordValid) {
+          return res.status(500).json({ status: 'Error', message: 'Incorrect credentials' });
+      }
+
+      let refreshToken = ''; // Declare refreshToken variable
+      if (isPasswordValid) {
+          const tokenPayload = {
+              id: userExist.id,
+              role: userExist.role,
+              name: `${userExist.firstName} ${userExist.lastName}`,
+              email: userExist.email,
           };
+
+          refreshToken = Token.generateRefreshToken(tokenPayload, config.app.REFRESH_TOKEN);
+          console.log("Refresh Token:", refreshToken);
+      }
+
+      // Construct the response object
+      const result = {
+          name: `${userExist.firstName} ${userExist.lastName}`,
+          role: userExist.role,
+          email: userExist.email,
+          token: `Bearer ${refreshToken}`,
+          expiresIn: "5 days", // Assuming 5 days for expiration
+      };
+
+      // Send the response
+      return res.status(200).json({ status: 'Success', data: result });
+  } catch (error) {
+      console.error('Error occurred during user login:', error);
+      return res.status(500).json({ status: 'Error', message: 'Something went wrong' });
+  }
+};
+
+        
+//////////////
+      
+        const serializeUser = (request) => {
+          return {
+            user_id: request._id,
+            name: request.name,
+            email: request.email,
+            username: request.username,
+            role: request.role,
+          };
+        };
+        
+     
+/////////////////////
+
+
+
+
+
+
+
+
+///////////////////////////
+
+       
+
+       
+        /////////////////////
+     auth.getuser=async(req,res,next)=>{
+      const userId=req.id
+      let user;
+      try{
+        user= await db.user.findById(userId,"password")
+
+      }catch(err){
+        console.log(err)
+        return err
+      }
+      if(!user){
+        res.response = {
+          code: 404,
+          data: { status: 'Error', message:"user not found" },
+        };
+        return res.status(200).json({user});
+      } 
+
+
+    }   
           
+        
+
+
+
+
 const readHTMLFile = (path, callback) => {
   fs.readFile(path, { encoding: "utf-8" }, function (err, html) {
     if (err) {

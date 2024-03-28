@@ -39,6 +39,8 @@ Object.keys(db).forEach((modelName) => {
 // Adding the user model
 db.user = require('./user')(sequelize, Sequelize.DataTypes);
 db.menus=require("./menus")(sequelize, Sequelize.DataTypes)
+db.banners=require("./banner")(sequelize, Sequelize.DataTypes)
+db.api=require("./api")(sequelize, Sequelize.DataTypes)
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;
