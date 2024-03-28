@@ -7,14 +7,14 @@ module.exports = function (sequelize, DataTypes) {
                 allowNull: false,
                 primaryKey: true,
                 type: DataTypes.UUID,
-                defaultValue: () => uuidv4() 
+                defaultValue: () => uuidv4()
             },
             menu_Name: DataTypes.STRING,
             status: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: false
             },
-            
+
             link: DataTypes.STRING,
             type: DataTypes.INTEGER,
             target: DataTypes.INTEGER,
@@ -22,34 +22,28 @@ module.exports = function (sequelize, DataTypes) {
             mainmenuid: {
                 type: DataTypes.UUID,
                 references: {
-                  model: 'menus',
-                  key: 'id',
+                    model: 'menus',
+                    key: 'id',
                 },
                 onUpdate: 'cascade',
-        onDelete: 'cascade',
-              },
+                onDelete: 'cascade',
+            },
         },
-         
-      
+
+
         {
             timestamps: true
         }
     );
-    // Menus.associate = function (models) {
-    //     // Define associations here
-    //     // For example, if Menus has a parent menu:
-    //     Menus.hasMany(models.menus, { foreignKey: 'mainmenuid', as: 'ChildMenus', onDelete: 'CASCADE' });
-    //     Menus.belongsTo(models.menus, { foreignKey: 'mainmenuid', as: 'ParentMenu' });
-    // };
+
 
     Menus.associate = function (models) {
         // Define associations here
         // For example, if Menus has a parent menu:
-        Menus.belongsTo(models.menus, { foreignKey: 'mainmenuid', as: 'ParentMenu',   });
+        Menus.belongsTo(models.menus, { foreignKey: 'mainmenuid', as: 'ParentMenu', });
     };
 
-    
+
     return Menus;
 };
 
-  

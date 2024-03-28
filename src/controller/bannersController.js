@@ -96,67 +96,7 @@ banner.deletebanner= async (req, res) => {
   };
 
   
-banner.findAllSecure = (req, res) => {
-  const { page_no = 1, page_size: limit = 10, search, type, status, col, order } = req.query;
 
-  let condition = null;
-  const fsearch = [];
-  let listData;
-
-  fsearch.push({ group: { [Op.in]: req.jwt.claims.groups } });
-
-  if (search) {
-    fsearch.push({ name: { [Op.iLike]: `%${search}%` } });
-  }
-  if (type) {
-    fsearch.push({ banner_type: `${type}` });
-  }
-  if (status) {
-    fsearch.push({ status: `${status}` });
-  }
-
-  if (fsearch.length > 0) {
-    condition = {
-      [Op.and]: fsearch,
-    };
-  }
-  const offset = (page_no - 1) * limit;
-
-  if (col === 'name') {
-    if (order === 'asc') {
-      listData = db.banners.findAndCountAll({ where: condition, order: [['name', 'ASC']], limit, offset });
-    } else {
-      listData = db.banners.findAndCountAll({ where: condition, order: [['name', 'DESC']], limit, offset });
-    }
-  } else if (col === 'order') {
-    if (order === 'desc') {
-      listData = db.banners.findAndCountAll({ where: condition, order: [['order_number', 'DESC']], limit, offset });
-    } else {
-      listData = db.banners.findAndCountAll({ where: condition, order: [['order_number', 'ASC']], limit, offset });
-    }
-  } else {
-    // listData = db.banners.findAndCountAll({ where: condition, order: [['updatedAt', 'DESC']], limit, offset });
-    listData = db.banners.findAndCountAll({ where: condition, order: [['id', 'DESC']], limit, offset });
-  }
-
-  // db.banners.findAndCountAll({ where: condition, order: [['name', 'ASC']], limit, offset })
-  listData
-    .then((data) => {
-      const { count: totalbanners, rows: banners } = data;
-
-      const totalPageCount = Math.ceil(totalbanners / limit);
-
-      
-
-      const pageperdata = banners.length;
-      res.send({ totalbanners, totalPageCount, page_no, pageperdata, page_size: limit, banners });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err?.message,
-      });
-    });
-};
 
 
 
